@@ -4,6 +4,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Message;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String DEBUG_TAG = "DEBUGGING";
     // Used for identifying shared types between calling functions
     private static final int REQUEST_ENABLE_BT = 1;
+    // Used by the main thread Handler to distinguish Messages containing a command from the Arduino
+    private static final int COMMAND_RECEIVED = 2;
     // Bluetooth uuid, used to determine which channel to connect to
     private static final UUID BT_MODULE_UUID =
             UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -136,6 +140,8 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(DEBUG_TAG, Integer.toString(numBytes) +
                                     " bytes received: " + Byte.toString(buffer[0]) + ":" +
                                     Byte.toString(buffer[1]) + ":" + Byte.toString(buffer[2]));
+                            Message msg = mHandler.obtainMessage(COMMAND_RECEIVED, buffer);
+                            msg.sendToTarget();
                         }
                     } catch (IOException e) {
                         Log.d(DEBUG_TAG, "Reading the input stream failed");
@@ -166,4 +172,33 @@ public class MainActivity extends AppCompatActivity {
 
         }
     };
+
+    private Handler mHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            if (msg.what == COMMAND_RECEIVED) {
+                byte[] data = (byte[]) msg.obj;
+
+                // Update the temperature
+                int temperature = (int) data[0];
+                mTemperatureTextView.setText(Integer.toString(temperature) + " \u00b0C");
+
+                // Update the windows status
+                int windowStatus = (int) data[1];
+                if (windowStatus == 0) {
+                    mWindowsTextView.setText("Closed");
+                } else if (windowStatus == 1) {
+                    mWindowsTextView.setText("Open");
+                }
+
+                // Update the alarm status
+                int alarmStatus = (int) data[2];
+                if (alarmStatus == 0) {
+                    mAlarmTextView.setText("Off");
+                } else if (alarmStatus == 1) {
+                    mAlarmTextView.setText("On");
+                }
+            }
+        }
+    };
+
 }
