@@ -155,21 +155,21 @@ public class MainActivity extends AppCompatActivity {
     private View.OnClickListener kitchenLightButtonOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-
+            sendCommand("1");
         }
     };
 
     private View.OnClickListener bedroomLightButtonOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-
+            sendCommand("2");
         }
     };
 
     private View.OnClickListener livingroomLightButtonOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-
+            sendCommand("3");
         }
     };
 
@@ -200,5 +200,17 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
+    private void sendCommand(String command) {
+        if (mOutputStream != null) {
+            try {
+                Log.d(DEBUG_TAG, "Command sent: " + command);
+                byte[] bytesToSend = command.getBytes("UTF-8");
+                mOutputStream.write(bytesToSend);
+            } catch (IOException e) {
+                Log.d(DEBUG_TAG, "Writing to the output stream failed");
+            }
+        }
+    }
 
 }
