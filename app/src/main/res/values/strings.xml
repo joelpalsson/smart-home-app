@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">SmartHomeApp</string>
+
+    <string name="connection_section_header">Network status</string>
+    <string name="connection_status_key">Status:\u0020</string>
+    <string name="connection_status_value">not connected</string>
+    <string name="connect_button">Connect</string>
+
+    <string name="light_control_header">Light control</string>
+    <string name="kitchen_light_button">Kitchen on/off</string>
+    <string name="bedroom_light_button">Bedroom on/off</string>
+    <string name="livingroom_light_button">Livingroom on/off</string>
+
+    <string name="sensor_data_header">Sensor data</string>
+    <string name="temperature_sensor_key">Temperature:\u0020</string>
+    <string name="windows_sensor_key">Windows:\u0020</string>
+    <string name="alarm_sensor_key">Alarm:\u0020</string>
+
 </resources>
