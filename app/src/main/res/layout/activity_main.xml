@@ -7,16 +7,57 @@
     tools:context=".MainActivity">
 
     <LinearLayout
-        android:id="@+id/lightButtons"
-        android:layout_width="wrap_content"
+        android:id="@+id/connectionInfo"
+        android:layout_width="280dp"
         android:layout_height="wrap_content"
-
-        android:layout_marginTop="32dp"
-
+        android:layout_marginTop="16dp"
+        android:background="@color/colorGrey"
         android:orientation="vertical"
+        android:padding="5dp"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Network status: "
+                android:textSize="18dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/connectionStatusTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="not connected"
+                android:textSize="18dp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/connectButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="Connect" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/lightControl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/connectionInfo">
 
         <TextView
             android:layout_width="match_parent"
@@ -51,13 +92,13 @@
 
     <LinearLayout
         android:id="@+id/sensorInfo"
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/lightButtons">
+        app:layout_constraintTop_toBottomOf="@id/lightControl">
 
         <TextView
             android:layout_width="match_parent"
@@ -78,15 +119,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Temperature: "
-                android:textSize="14dp"
+                android:textSize="18dp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/temperatureTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="&lt;temperature&gt;"
-                android:textSize="14dp" />
+                android:textSize="18dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -99,15 +139,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Windows: "
-                android:textSize="14dp"
+                android:textSize="18dp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/windowsTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="&lt;windows&gt;"
-                android:textSize="14dp" />
+                android:textSize="18dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -120,15 +159,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Alarm: "
-                android:textSize="14dp"
+                android:textSize="18dp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/alarmTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="&lt;alarm&gt;"
-                android:textSize="14dp" />
+                android:textSize="18dp" />
         </LinearLayout>
     </LinearLayout>
 
