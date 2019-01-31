@@ -99,8 +99,8 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
-        // Check if the Android API level is equal to or greater than 23. If so, ask the user for
-        // necessary audio recording permissions
+        // Check if the Android API level is equal to or greater than 23 (Marshmallow). If so, ask
+        // the user for necessary audio recording permissions
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestRecAudioPerm();
         }
@@ -411,7 +411,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void vibrate(int vibrationTime) {
-        if (Build.VERSION.SDK_INT >= 26) {
+        // Check if the Android API level is equal to or greater than 26 (Oreo). If so, use this
+        // method instead of the one below, since that one is deprecated.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             vibrator.vibrate(VibrationEffect.createOneShot(vibrationTime,
                     VibrationEffect.DEFAULT_AMPLITUDE));
         } else {
