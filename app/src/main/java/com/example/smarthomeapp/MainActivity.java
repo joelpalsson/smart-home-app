@@ -197,22 +197,27 @@ public class MainActivity extends AppCompatActivity {
         public void onResults(Bundle results) {
             Log.d(DEBUG_TAG, "Result obtained!");
             ArrayList<String> result = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-            for (int i = 0; i < result.size(); i++) {
-                Log.d(DEBUG_TAG, "result " + Integer.toString(i) + ": " + result.get(i));
+
+            for (String suggestion : result) {
+                Log.d(DEBUG_TAG, "result: " + suggestion);
+                for (String word : suggestion.split(" ")) {
+                    Log.d(DEBUG_TAG, word);
+                    switch (word.toLowerCase()) {
+                        case "kitchen":
+                            sendCommand("1");
+                            return;
+                        case "bedroom":
+                            sendCommand("2");
+                            return;
+                        case "living room":
+                            sendCommand("3");
+                            return;
+                    }
+                }
             }
-            String command = result.get(0).toLowerCase();
-            Log.d(DEBUG_TAG, command);
-            if (command.equals("kitchen")) {
-                sendCommand("1");
-            } else if (command.equals("bedroom")) {
-                sendCommand("2");
-            } else if (command.equals("living room")) {
-                sendCommand("3");
-            } else {
-                String feedback = "Unfortunately it is not possible to control the light in the " +
-                        "mentioned room. Please press the button and try again!";
-                Toast.makeText(getApplicationContext(), feedback, Toast.LENGTH_LONG).show();
-            }
+            String feedback = "Unfortunately it is not possible to control the light in the " +
+                    "mentioned room. Please press the button and try again!";
+            Toast.makeText(getApplicationContext(), feedback, Toast.LENGTH_LONG).show();
         }
 
         @Override
