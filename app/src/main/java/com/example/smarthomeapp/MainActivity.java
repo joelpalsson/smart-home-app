@@ -10,6 +10,8 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -56,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private OutputStream mOutputStream;
 
     private SpeechRecognizer speechRecognizer;
+    private Vibrator vibrator;
 
     private TextView mConnectionStatusTextView;
     private TextView mTemperatureTextView;
@@ -117,6 +120,9 @@ public class MainActivity extends AppCompatActivity {
         Log.d(DEBUG_TAG, "speech regignition supported: " + Boolean.toString(supported));
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         speechRecognizer.setRecognitionListener(commandRecognitionListener);
+
+        // Obtain a Vibrator for interacting with the device's vibration hardware
+        vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
     }
 
     // To avoid blocking the GUI thread, start a new thread to handle the connection
@@ -248,6 +254,7 @@ public class MainActivity extends AppCompatActivity {
                                 break;
                             case 2:
                                 // Windows status received
+                                vibrate(300);
                                 int windowStatus = (int) data[byteIndex + 1];
                                 if (windowStatus == 0) {
                                     mWindowsTextView.setText("Closed");
@@ -257,6 +264,7 @@ public class MainActivity extends AppCompatActivity {
                                 break;
                             case 3:
                                 // Alarm status received
+                                vibrate(300);
                                 int alarmStatus = (int) data[byteIndex + 1];
                                 if (alarmStatus == 0) {
                                     mAlarmTextView.setText("Off");
@@ -399,5 +407,11 @@ public class MainActivity extends AppCompatActivity {
         speechRecognizer.startListening(intent);
     }
 
-
+    private void vibrate(int vibrationTime) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            vibrator.vibrate(VibrationEffect.createOneShot(vibrationTime, VibrationEffect.DEFAULT_AMPLITUDE));
+        } else {
+            vibrator.vibrate(vibrationTime);
+        }
+    }
 }
