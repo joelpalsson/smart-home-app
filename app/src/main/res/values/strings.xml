@@ -3,7 +3,7 @@
 
     <string name="connection_section_header">Network status</string>
     <string name="connection_status_key">Status:\u0020</string>
-    <string name="connection_status_value">not connected</string>
+    <string name="connection_status_value">Not connected</string>
     <string name="connect_button">Connect</string>
 
     <string name="light_control_header">Light control</string>

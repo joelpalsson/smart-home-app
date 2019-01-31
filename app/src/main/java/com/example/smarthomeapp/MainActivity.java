@@ -337,7 +337,7 @@ public class MainActivity extends AppCompatActivity {
             feedback = "Connected to network!";
             msg = mHandler.obtainMessage(USER_FEEDBACK, feedback);
             msg.sendToTarget();
-            String connectionStatus = "connected";
+            String connectionStatus = "Connected";
             msg = mHandler.obtainMessage(CONNECTION_STATUS, connectionStatus);
             msg.sendToTarget();
 
