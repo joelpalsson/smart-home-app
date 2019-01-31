@@ -231,26 +231,37 @@ public class MainActivity extends AppCompatActivity {
             switch (msg.what) {
                 case COMMAND_RECEIVED:
                     byte[] data = (byte[]) msg.obj;
-
-                    // Update the temperature
-                    int temperature = (int) data[0];
-                    mTemperatureTextView.setText(Integer.toString(temperature) + " \u00b0C");
-
-                    // Update the windows status
-                    int windowStatus = (int) data[1];
-                    if (windowStatus == 0) {
-                        mWindowsTextView.setText("Closed");
-                    } else if (windowStatus == 1) {
-                        mWindowsTextView.setText("Open");
+                    int numBytes = msg.arg1;
+                    int byteIndex = 0;
+                    while (byteIndex < numBytes) {
+                        int key = (int) data[byteIndex];
+                        switch (key) {
+                            case 1:
+                                // Temperature received
+                                int temperature = (int) data[byteIndex + 1];
+                                mTemperatureTextView.setText(Integer.toString(temperature) + " \u00b0C");
+                                break;
+                            case 2:
+                                // Windows status received
+                                int windowStatus = (int) data[byteIndex + 1];
+                                if (windowStatus == 0) {
+                                    mWindowsTextView.setText("Closed");
+                                } else if (windowStatus == 1) {
+                                    mWindowsTextView.setText("Open");
+                                }
+                                break;
+                            case 3:
+                                // Alarm status received
+                                int alarmStatus = (int) data[byteIndex + 1];
+                                if (alarmStatus == 0) {
+                                    mAlarmTextView.setText("Off");
+                                } else if (alarmStatus == 1) {
+                                    mAlarmTextView.setText("On");
+                                }
+                        }
+                        byteIndex = byteIndex + 2;
                     }
 
-                    // Update the alarm status
-                    int alarmStatus = (int) data[2];
-                    if (alarmStatus == 0) {
-                        mAlarmTextView.setText("Off");
-                    } else if (alarmStatus == 1) {
-                        mAlarmTextView.setText("On");
-                    }
                     break;
 
                 case CONNECTION_STATUS:
@@ -329,19 +340,23 @@ public class MainActivity extends AppCompatActivity {
             byte[] buffer = new byte[1024];
             int numBytes;
 
+            // Request sensor data from the Arduino
+            sendCommand("0");
+
             // Start transferring data
             while (true) {
                 try {
                     numBytes = mInputStream.available();
                     if (numBytes > 0) {
                         // Wait for all data to arrive
-                        SystemClock.sleep(100);
-                        numBytes = mInputStream.available();
-                        mInputStream.read(buffer);
-                        Log.d(DEBUG_TAG, Integer.toString(numBytes) +
-                                " bytes received: " + Byte.toString(buffer[0]) + ":" +
-                                Byte.toString(buffer[1]) + ":" + Byte.toString(buffer[2]));
-                        msg = mHandler.obtainMessage(COMMAND_RECEIVED, buffer);
+                        SystemClock.sleep(50);
+                        numBytes = mInputStream.read(buffer);
+                        String data = Integer.toString(numBytes) + " bytes received: ";
+                        for (int i = 0; i < numBytes; i++) {
+                            data += Byte.toString(buffer[i]) + ":";
+                        }
+                        Log.d(DEBUG_TAG, data);
+                        msg = mHandler.obtainMessage(COMMAND_RECEIVED, numBytes, 0, buffer);
                         msg.sendToTarget();
                     }
                 } catch (IOException e) {
