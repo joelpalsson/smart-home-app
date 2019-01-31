@@ -202,7 +202,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onResults(Bundle results) {
             Log.d(DEBUG_TAG, "Result obtained!");
-            ArrayList<String> result = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+            ArrayList<String> result = results.getStringArrayList(
+                    SpeechRecognizer.RESULTS_RECOGNITION);
 
             for (String suggestion : result) {
                 Log.d(DEBUG_TAG, "result: " + suggestion);
@@ -250,7 +251,8 @@ public class MainActivity extends AppCompatActivity {
                             case 1:
                                 // Temperature received
                                 int temperature = (int) data[byteIndex + 1];
-                                mTemperatureTextView.setText(Integer.toString(temperature) + " \u00b0C");
+                                mTemperatureTextView.setText(
+                                        Integer.toString(temperature) + " \u00b0C");
                                 break;
                             case 2:
                                 // Windows status received
@@ -403,13 +405,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void recordSpeech() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         speechRecognizer.startListening(intent);
     }
 
     private void vibrate(int vibrationTime) {
         if (Build.VERSION.SDK_INT >= 26) {
-            vibrator.vibrate(VibrationEffect.createOneShot(vibrationTime, VibrationEffect.DEFAULT_AMPLITUDE));
+            vibrator.vibrate(VibrationEffect.createOneShot(vibrationTime,
+                    VibrationEffect.DEFAULT_AMPLITUDE));
         } else {
             vibrator.vibrate(vibrationTime);
         }
