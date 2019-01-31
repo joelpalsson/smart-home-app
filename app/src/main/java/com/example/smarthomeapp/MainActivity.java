@@ -1,12 +1,20 @@
 package com.example.smarthomeapp;
 
+import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +26,7 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
@@ -27,11 +36,13 @@ public class MainActivity extends AppCompatActivity {
     // Used for identifying shared types between calling functions
     private static final int REQUEST_ENABLE_BT = 1;
     // Used by the main thread Handler to distinguish Messages containing a command from the Arduino
-    private static final int COMMAND_RECEIVED = 2;
+    private static final int COMMAND_RECEIVED = 1;
     // Used by the main thread Handler to distinguish Messages containing connection status
-    private static final int CONNECTION_STATUS = 3;
+    private static final int CONNECTION_STATUS = 2;
     // Used by the main thread Handler to distinguish Messages containing user feedback
-    private static final int USER_FEEDBACK = 4;
+    private static final int USER_FEEDBACK = 3;
+    // Used when requesting audio recording permissions
+    private static final int MY_PERMISSIONS_REQUEST_RECORD_AUDIO = 1;
     // Bluetooth uuid, used to determine which channel to connect to
     private static final UUID BT_MODULE_UUID =
             UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -44,10 +55,12 @@ public class MainActivity extends AppCompatActivity {
     private InputStream mInputStream;
     private OutputStream mOutputStream;
 
-    TextView mConnectionStatusTextView;
-    TextView mTemperatureTextView;
-    TextView mWindowsTextView;
-    TextView mAlarmTextView;
+    private SpeechRecognizer speechRecognizer;
+
+    private TextView mConnectionStatusTextView;
+    private TextView mTemperatureTextView;
+    private TextView mWindowsTextView;
+    private TextView mAlarmTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
         Button kitchenLightButton = (Button) findViewById(R.id.kitchenLightButton);
         Button bedroomLightButton = (Button) findViewById(R.id.bedroomLightButton);
         Button livingroomLightButton = (Button) findViewById(R.id.livingroomLightButton);
+        Button voiceControlButton = (Button) findViewById(R.id.voiceControlButton);
         mConnectionStatusTextView = (TextView) findViewById(R.id.connectionStatusTextView);
         mTemperatureTextView = (TextView) findViewById(R.id.temperatureTextView);
         mWindowsTextView = (TextView) findViewById(R.id.windowsTextView);
@@ -82,14 +96,27 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
+        // Check if the Android API level is equal to or greater than 23. If so, ask the user for
+        // necessary audio recording permissions
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestRecAudioPerm();
+        }
+
         // Set the GUI listeners
         connectButton.setOnClickListener(connectButtonOnClickListener);
         kitchenLightButton.setOnClickListener(kitchenLightButtonOnClickListener);
         bedroomLightButton.setOnClickListener(bedroomLightButtonOnClickListener);
         livingroomLightButton.setOnClickListener(livingroomLightButtonOnClickListener);
+        voiceControlButton.setOnClickListener(voiceControlButtonOnClickListener);
 
         // Obtain the paired Arduino device
         mBtDevice = mBtAdapter.getRemoteDevice(ARDUINO_MAC);
+
+        // Prepare for speech recognition
+        boolean supported = SpeechRecognizer.isRecognitionAvailable(this);
+        Log.d(DEBUG_TAG, "speech regignition supported: " + Boolean.toString(supported));
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+        speechRecognizer.setRecognitionListener(commandRecognitionListener);
     }
 
     // To avoid blocking the GUI thread, start a new thread to handle the connection
@@ -124,6 +151,78 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             sendCommand("3");
+        }
+    };
+
+    private View.OnClickListener voiceControlButtonOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            recordSpeech();
+        }
+    };
+
+    private RecognitionListener commandRecognitionListener = new RecognitionListener() {
+        @Override
+        public void onReadyForSpeech(Bundle params) {
+            String feedback = "In which room do you want to toggle the light?";
+            Toast.makeText(getApplicationContext(), feedback, Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onBeginningOfSpeech() {
+
+        }
+
+        @Override
+        public void onRmsChanged(float rmsdB) {
+
+        }
+
+        @Override
+        public void onBufferReceived(byte[] buffer) {
+
+        }
+
+        @Override
+        public void onEndOfSpeech() {
+
+        }
+
+        @Override
+        public void onError(int error) {
+            Log.d(DEBUG_TAG, "error: " + error);
+        }
+
+        @Override
+        public void onResults(Bundle results) {
+            Log.d(DEBUG_TAG, "Result obtained!");
+            ArrayList<String> result = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+            for (int i = 0; i < result.size(); i++) {
+                Log.d(DEBUG_TAG, "result " + Integer.toString(i) + ": " + result.get(i));
+            }
+            String command = result.get(0).toLowerCase();
+            Log.d(DEBUG_TAG, command);
+            if (command.equals("kitchen")) {
+                sendCommand("1");
+            } else if (command.equals("bedroom")) {
+                sendCommand("2");
+            } else if (command.equals("living room")) {
+                sendCommand("3");
+            } else {
+                String feedback = "Unfortunately it is not possible to control the light in the " +
+                        "mentioned room. Please press the button and try again!";
+                Toast.makeText(getApplicationContext(), feedback, Toast.LENGTH_LONG).show();
+            }
+        }
+
+        @Override
+        public void onPartialResults(Bundle partialResults) {
+
+        }
+
+        @Override
+        public void onEvent(int eventType, Bundle params) {
+
         }
     };
 
@@ -264,5 +363,21 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    private void requestRecAudioPerm() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) !=
+                PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.RECORD_AUDIO},
+                    MY_PERMISSIONS_REQUEST_RECORD_AUDIO);
+        }
+    }
+
+    private void recordSpeech() {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        speechRecognizer.startListening(intent);
+    }
+
 
 }

@@ -7,9 +7,10 @@
     <string name="connect_button">Connect</string>
 
     <string name="light_control_header">Light control</string>
-    <string name="kitchen_light_button">Kitchen on/off</string>
-    <string name="bedroom_light_button">Bedroom on/off</string>
-    <string name="livingroom_light_button">Livingroom on/off</string>
+    <string name="kitchen_light_button">Kitchen</string>
+    <string name="bedroom_light_button">Bedroom</string>
+    <string name="livingroom_light_button">Living room</string>
+    <string name="voice_control_button">Voice input</string>
 
     <string name="sensor_data_header">Sensor data</string>
     <string name="temperature_sensor_key">Temperature:\u0020</string>
