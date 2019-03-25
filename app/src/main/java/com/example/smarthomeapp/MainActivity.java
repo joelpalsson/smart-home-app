@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
                         case "bedroom":
                             sendCommand("2");
                             return;
-                        case "living room":
+                        case "living":
                             sendCommand("3");
                             return;
                     }
